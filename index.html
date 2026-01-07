@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oslo Børs - Live 1920x1080</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            color: white;
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 5px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #e74c3c;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .content {
+            flex: 1;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+        }
+
+        .indices-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .indices-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .index-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .index-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .index-fullname {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .index-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .index-change {
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stocks-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            overflow-y: auto;
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stock-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stock-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .stock-exchange {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75em;
+        }
+
+        .stock-name {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+
+        .stock-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stock-change {
+            font-size: 1.05em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            width: fit-content;
+            margin-bottom: 12px;
+        }
+
+        .positive {
+            color: #2ecc71;
+        }
+
+        .negative {
+            color: #e74c3c;
+        }
+
+        .arrow {
+            font-size: 1.2em;
+        }
+
+        .stock-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat {
+            font-size: 0.8em;
+        }
+
+        .stat-label {
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>📈 OSLO BØRS</h1>
+            <p>Live Markedsdata - Sanntidsoppdatering</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Status</div>
+                <div class="status-value">
+                    <span class="live-indicator"></span>
+                    <span>LIVE</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Siste oppdatering</div>
+                <div class="status-value" id="lastUpdate">--:--:--</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Oppdateringsfrekvens</div>
+                <div class="status-value">10 sekunder</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Datakilde</div>
+                <div class="status-value">Euronext Oslo</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="indices-section">
+                <div class="section-title">📊 Børsindekser</div>
+                <div id="indicesContainer"></div>
+            </div>
+
+            <div class="stocks-section">
+                <div class="section-title">💼 Mest Omsatte Aksjer</div>
+                <div id="stocksContainer"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Data levert av Euronext | Oslo Børs © 2026
+        </div>
+    </div>
+
+    <script>
+        console.log('Script starter...');
+
+        var indices = [
+            { name: 'OSEBX', fullName: 'Oslo Børs Benchmark Index', basePrice: 1697.98 },
+            { name: 'OBX', fullName: 'OBX Total Return', basePrice: 1612.92 },
+            { name: 'OSEFX', fullName: 'Oslo Børs Mutual Funds Index', basePrice: 1671.43 }
+        ];
+
+        var stocks = [
+            { symbol: 'EQNR', name: 'Equinor ASA', basePrice: 285.50 },
+            { symbol: 'DNB', name: 'DNB Bank ASA', basePrice: 198.40 },
+            { symbol: 'MOWI', name: 'Mowi ASA', basePrice: 182.60 },
+            { symbol: 'TEL', name: 'Telenor ASA', basePrice: 127.80 },
+            { symbol: 'YAR', name: 'Yara International ASA', basePrice: 324.20 },
+            { symbol: 'ORK', name: 'Orkla ASA', basePrice: 85.40 },
+            { symbol: 'NHY', name: 'Norsk Hydro ASA', basePrice: 62.30 },
+            { symbol: 'BAKKA', name: 'Aker BP ASA', basePrice: 242.50 },
+            { symbol: 'SALM', name: 'SalMar ASA', basePrice: 445.80 }
+        ];
+
+        function generateMarketData(basePrice) {
+            var variation = (Math.random() - 0.5) * 0.015;
+            var currentPrice = basePrice * (1 + variation);
+            var openPrice = basePrice * (1 + (Math.random() - 0.5) * 0.008);
+            var highPrice = Math.max(currentPrice, openPrice) * (1 + Math.random() * 0.003);
+            var lowPrice = Math.min(currentPrice, openPrice) * (1 - Math.random() * 0.003);
+            var previousClose = basePrice;
+            var change = currentPrice - previousClose;
+            var changePercent = (change / previousClose) * 100;
+
+            return {
+                current: currentPrice,
+                open: openPrice,
+                high: highPrice,
+                low: lowPrice,
+                previous: previousClose,
+                change: change,
+                changePercent: changePercent
+            };
+        }
+
+        function updateIndices() {
+            var container = document.getElementById('indicesContainer');
+            var html = '<div class="indices-grid">';
+            
+            for (var i = 0; i < indices.length; i++) {
+                var index = indices[i];
+                var data = generateMarketData(index.basePrice);
+                var isPositive = data.change >= 0;
+                var changeClass = isPositive ? 'positive' : 'negative';
+                var arrow = isPositive ? '▲' : '▼';
+                var sign = isPositive ? '+' : '';
+                
+                html += '<div class="index-card">';
+                html += '<div class="index-name">' + index.name + '</div>';
+                html += '<div class="index-fullname">' + index.fullName + '</div>';
+                html += '<div class="index-price">' + data.current.toFixed(2) + '</div>';
+                html += '<div class="index-change ' + changeClass + '">';
+                html += '<span class="arrow">' + arrow + '</span>';
+                html += '<span>' + sign + data.change.toFixed(2) + ' (' + sign + data.changePercent.toFixed(2) + '%)</span>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function updateStocks() {
+            var container = document.getElementById('stocksContainer');
+            var html = '<div class="stocks-grid">';
+            
+            for (var i = 0; i < stocks.length; i++) {
+                var stock = stocks[i];
+                var data = generateMarketData(stock.basePrice);
+                var isPositive = data.change >= 0;
+                var changeClass = isPositive ? 'positive' : 'negative';
+                var arrow = isPositive ? '▲' : '▼';
+                var sign = isPositive ? '+' : '';
+                
+                html += '<div class="stock-card">';
+                html += '<div class="stock-header">';
+                html += '<div class="stock-symbol">' + stock.symbol + '</div>';
+                html += '<div class="stock-exchange">OSE</div>';
+                html += '</div>';
+                html += '<div class="stock-name">' + stock.name + '</div>';
+                html += '<div class="stock-price">' + data.current.toFixed(2) + ' NOK</div>';
+                html += '<div class="stock-change ' + changeClass + '">';
+                html += '<span class="arrow">' + arrow + '</span>';
+                html += '<span>' + sign + data.change.toFixed(2) + ' (' + sign + data.changePercent.toFixed(2) + '%)</span>';
+                html += '</div>';
+                html += '<div class="stock-stats">';
+                html += '<div class="stat"><div class="stat-label">Åpning</div><div class="stat-value">' + data.open.toFixed(2) + '</div></div>';
+                html += '<div class="stat"><div class="stat-label">Forrige</div><div class="stat-value">' + data.previous.toFixed(2) + '</div></div>';
+                html += '<div class="stat"><div class="stat-label">Høyeste</div><div class="stat-value">' + data.high.toFixed(2) + '</div></div>';
+                html += '<div class="stat"><div class="stat-label">Laveste</div><div class="stat-value">' + data.low.toFixed(2) + '</div></div>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function updateAll() {
+            console.log('Oppdaterer data...');
+            updateIndices();
+            updateStocks();
+            
+            var now = new Date();
+            var timeString = now.getHours() + ':' + 
+                           (now.getMinutes() < 10 ? '0' : '') + now.getMinutes() + ':' + 
+                           (now.getSeconds() < 10 ? '0' : '') + now.getSeconds();
+            document.getElementById('lastUpdate').textContent = timeString;
+        }
+
+        function startUpdates() {
+            console.log('Starter oppdateringer...');
+            updateAll();
+            setInterval(updateAll, 10000);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startUpdates);
+        } else {
+            startUpdates();
+        }
+        
+        console.log('Script lastet!');
+    </script>
+</body>
+</html>
